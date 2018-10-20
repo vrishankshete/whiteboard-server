@@ -43,7 +43,7 @@ app.get('/', function(req,res){
 });
 
 io.on('connection', function(socket){
-	logger.debug("Client Connected. " + socket.id);
+	logger.info("Client Connected. " + socket.id);
 	var id = socket.id;
 	users[id] = {};
 	sidUnameMap[id] = null;
@@ -62,10 +62,13 @@ io.on('connection', function(socket){
 		var found = rooms[roomId];
 		if(!found){
 			logger.debug(roomId+ " Room does not exist. Creating specified room...");
-			logger.info("Room Number : "+roomId);
+			logger.info("Created Room Number : "+roomId);
 			rooms[roomId] = {};
 			rooms[roomId].users = [];
 			rooms[roomId].drawings = [];
+		}
+		else{
+			logger.info("Joined Room Number : "+roomId);
 		}
 
 		users[id].roomId = roomId;
@@ -87,7 +90,7 @@ io.on('connection', function(socket){
 	});
 
 	socket.on('disconnect', function(){
-		logger.debug("Disconnected");
+		logger.info(`Client disconnected: ${socket.id}`);
 		var roomId = users[id].roomId;
 		if(!roomId){
 			delete users[id];
@@ -101,6 +104,7 @@ io.on('connection', function(socket){
 		updateClients();
 		if(rooms[roomId] && rooms[roomId].users.length === 0){
 			//No user left in this room. Delete it.
+			logger.info(`Deleting room no: ${roomId}`);
 			delete rooms[roomId];
 		}
 		delete users[id];
